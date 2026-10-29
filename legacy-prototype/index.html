@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NODEVERSE — Visual Workflow Automation Platform</title>
+  <meta name="description" content="NODEVERSE is a visual workflow automation platform that lets you design and run dependency-based tasks as a Directed Acyclic Graph (DAG). Build, validate, trigger, execute, observe and recover workflows with ease." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ─── NAVIGATION ─────────────────────────────────────────── -->
+  <nav class="nav" id="navbar">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo" id="nav-logo-link">
+        <span class="logo-icon">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <polygon points="16,2 30,10 30,22 16,30 2,22 2,10" fill="none" stroke="url(#hexGrad)" stroke-width="2"/>
+            <circle cx="16" cy="16" r="4" fill="url(#hexGrad)"/>
+            <line x1="16" y1="2" x2="16" y2="12" stroke="url(#hexGrad)" stroke-width="1.5"/>
+            <line x1="16" y1="20" x2="16" y2="30" stroke="url(#hexGrad)" stroke-width="1.5"/>
+            <line x1="30" y1="10" x2="20" y2="14" stroke="url(#hexGrad)" stroke-width="1.5"/>
+            <line x1="2" y1="10" x2="12" y2="14" stroke="url(#hexGrad)" stroke-width="1.5"/>
+            <defs>
+              <linearGradient id="hexGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#a855f7"/>
+                <stop offset="100%" style="stop-color:#22d3ee"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </span>
+        <span class="logo-text">NODE<span class="logo-accent">VERSE</span></span>
+      </a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="#features" class="nav-link">Features</a></li>
+        <li><a href="#how-it-works" class="nav-link">How it Works</a></li>
+        <li><a href="#architecture" class="nav-link">Architecture</a></li>
+        <li><a href="#tech-stack" class="nav-link">Tech Stack</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a href="http://localhost:5173" class="btn-primary btn-sm" id="nav-get-started" target="_blank" rel="noreferrer">🚀 Launch Studio</a>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ─── HERO ────────────────────────────────────────────────── -->
+  <section class="hero" id="hero">
+    <div class="hero-bg">
+      <canvas id="dag-canvas"></canvas>
+      <div class="hero-glow glow-1"></div>
+      <div class="hero-glow glow-2"></div>
+      <div class="hero-grid"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        <span>Visual Workflow Automation · 2026</span>
+      </div>
+      <h1 class="hero-title">
+        Automate <span class="gradient-text">anything</span><br/>
+        with intelligent<br/>
+        <span class="gradient-text">node graphs</span>
+      </h1>
+      <p class="hero-desc">
+        NODEVERSE is a visual workflow automation platform that lets you design and run
+        dependency-based tasks as a <strong>Directed Acyclic Graph (DAG)</strong>. Connect
+        triggers, HTTP requests, data transformations, delays and conditions on a visual canvas.
+      </p>
+      <div class="hero-actions">
+        <a href="http://localhost:5173" class="btn-primary" id="hero-studio-btn" target="_blank" rel="noreferrer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,3 19,12 5,21"/></svg>
+          Launch Studio App
+        </a>
+        <a href="#how-it-works" class="btn-ghost" id="hero-explore-btn">Explore Platform</a>
+        <a href="#architecture" class="btn-ghost" id="hero-arch-btn">View Architecture</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-num" data-target="99.9">0</span><span class="stat-unit">%</span>
+          <span class="stat-label">Uptime SLA</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-num" data-target="6">0</span><span class="stat-unit">x</span>
+          <span class="stat-label">Process Steps</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-num" data-target="8">0</span><span class="stat-unit">+</span>
+          <span class="stat-label">Node Types</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-scroll-indicator">
+      <div class="scroll-line"></div>
+      <span>Scroll</span>
+    </div>
+  </section>
+
+  <!-- ─── FEATURES ─────────────────────────────────────────────── -->
+  <section class="section features-section" id="features">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Features Announcement</span>
+        <h2 class="section-title">Everything you need to<br/><span class="gradient-text">automate at scale</span></h2>
+        <p class="section-desc">A comprehensive set of tools to build, run, monitor, and recover complex automation workflows.</p>
+      </div>
+      <div class="features-grid">
+
+        <div class="feature-card feature-large" id="feat-visual">
+          <div class="feature-icon-wrap">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><line x1="10" y1="6.5" x2="14" y2="6.5"/><line x1="10" y1="17.5" x2="14" y2="17.5"/><line x1="6.5" y1="10" x2="6.5" y2="14"/><line x1="17.5" y1="10" x2="17.5" y2="14"/></svg>
+          </div>
+          <h3>Visual Workflow Builder</h3>
+          <p>Drag-and-drop nodes for manual/webhook triggers, HTTP requests, transformations, delays and conditions. Design complex automation flows visually.</p>
+          <div class="feature-tag-row">
+            <span class="ftag">DAG Canvas</span>
+            <span class="ftag">Drag & Drop</span>
+            <span class="ftag">React Flow</span>
+          </div>
+        </div>
+
+        <div class="feature-card" id="feat-cycle">
+          <div class="feature-icon-wrap">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><path d="M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+          </div>
+          <h3>Cycle Detection & Validation</h3>
+          <p>Automatic cycle detection prevents invalid graphs before saving or running. Required node settings are validated upfront.</p>
+        </div>
+
+        <div class="feature-card" id="feat-trigger">
+          <div class="feature-icon-wrap">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          </div>
+          <h3>Webhook & Scheduled Triggers</h3>
+          <p>HTTP endpoints start event-driven runs. Cron schedules start time-based runs with configurable payloads.</p>
+        </div>
+
+        <div class="feature-card" id="feat-dist">
+          <div class="feature-icon-wrap">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          </div>
+          <h3>Distributed Task Processing</h3>
+          <p>BullMQ-backed queues with separate worker processes ensure API traffic is not blocked by long-running nodes.</p>
+        </div>
+
+        <div class="feature-card" id="feat-exec">
+          <div class="feature-icon-wrap">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
+          </div>
+          <h3>Execution History & Telemetry</h3>
+          <p>Full run status per node, timestamps, context inputs, outputs and errors are auditable and actionable via logs.</p>
+        </div>
+
+        <div class="feature-card" id="feat-retry">
+          <div class="feature-icon-wrap">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>
+          </div>
+          <h3>Retry, Idempotency & Dead-Letter</h3>
+          <p>Configurable retry caps, exponential backoff with jitter, duplicate-execution guards and visibility into exhausted failures.</p>
+        </div>
+
+        <div class="feature-card feature-large" id="feat-live">
+          <div class="feature-icon-wrap">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>
+          </div>
+          <h3>Live Streaming Execution View</h3>
+          <p>Server-Sent Events (SSE) stream real-time status updates and streaming output to the canvas while a run is in progress. Watch your workflows execute node-by-node.</p>
+          <div class="feature-tag-row">
+            <span class="ftag">SSE Stream</span>
+            <span class="ftag">Real-time</span>
+            <span class="ftag">Canvas Updates</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── HOW IT WORKS ─────────────────────────────────────────── -->
+  <section class="section process-section" id="how-it-works">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Process Flow</span>
+        <h2 class="section-title">Six steps from idea<br/>to <span class="gradient-text">automated reality</span></h2>
+      </div>
+      <div class="process-grid">
+
+        <div class="process-card" id="proc-design">
+          <div class="proc-num">01</div>
+          <div class="proc-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </div>
+          <h3>Design</h3>
+          <p>Build the workflow on the visual canvas by adding nodes, configuring them and connecting dependencies.</p>
+        </div>
+
+        <div class="process-card" id="proc-validate">
+          <div class="proc-num">02</div>
+          <div class="proc-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20,6 9,17 4,12"/></svg>
+          </div>
+          <h3>Validate</h3>
+          <p>Check required node settings and detect cycles before a workflow is saved or run.</p>
+        </div>
+
+        <div class="process-card" id="proc-trigger">
+          <div class="proc-num">03</div>
+          <div class="proc-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          </div>
+          <h3>Trigger</h3>
+          <p>Start a run manually, through an incoming HTTP webhook, or from a configured schedule.</p>
+        </div>
+
+        <div class="process-card" id="proc-execute">
+          <div class="proc-num">04</div>
+          <div class="proc-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+          </div>
+          <h3>Execute</h3>
+          <p>Calculate a valid topological order and run each node only after its parent nodes succeed.</p>
+        </div>
+
+        <div class="process-card" id="proc-observe">
+          <div class="proc-num">05</div>
+          <div class="proc-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+          <h3>Observe</h3>
+          <p>Store run and node status, inputs, outputs, timestamps and errors; stream updates to the canvas.</p>
+        </div>
+
+        <div class="process-card" id="proc-recover">
+          <div class="proc-num">06</div>
+          <div class="proc-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+          </div>
+          <h3>Recover</h3>
+          <p>Retry eligible failures using configured limits and backoff; send exhausted failures to a dead-letter queue for review or replay.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── ARCHITECTURE ─────────────────────────────────────────── -->
+  <section class="section arch-section" id="architecture">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">System Architecture</span>
+        <h2 class="section-title">Built for <span class="gradient-text">reliability</span><br/>and scale</h2>
+        <p class="section-desc">A layered architecture separating concerns across client, execution, and trigger planes.</p>
+      </div>
+      <div class="arch-diagram" id="arch-diagram">
+        <div class="arch-layer" id="arch-client">
+          <div class="arch-layer-label">CLIENT</div>
+          <div class="arch-layer-content">
+            <span class="arch-badge">React + Vite</span>
+            <span class="arch-arrow">→</span>
+            <span class="arch-badge">React Flow</span>
+            <span class="arch-arrow">→</span>
+            <span class="arch-badge">Express REST API</span>
+          </div>
+        </div>
+        <div class="arch-connector">
+          <div class="conn-line"></div>
+          <div class="conn-dots">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+        <div class="arch-layer" id="arch-exec">
+          <div class="arch-layer-label">DATA + EXECUTION</div>
+          <div class="arch-layer-content">
+            <span class="arch-badge">PostgreSQL</span>
+            <span class="arch-arrow">→</span>
+            <span class="arch-badge">Redis + BullMQ</span>
+            <span class="arch-arrow">→</span>
+            <span class="arch-badge">Worker Processes</span>
+          </div>
+        </div>
+        <div class="arch-connector">
+          <div class="conn-line"></div>
+          <div class="conn-dots">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+        <div class="arch-layer" id="arch-trigger">
+          <div class="arch-layer-label">TRIGGERS + LIVE VIEW</div>
+          <div class="arch-layer-content">
+            <span class="arch-badge">Webhooks</span>
+            <span class="arch-arrow">→</span>
+            <span class="arch-badge">Cron Scheduler</span>
+            <span class="arch-arrow">→</span>
+            <span class="arch-badge">SSE</span>
+            <span class="arch-arrow">→</span>
+            <span class="arch-badge">Canvas Updates</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="arch-detail-grid">
+        <div class="arch-detail-card" id="arch-d1">
+          <div class="arch-detail-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          </div>
+          <h4>React + Vite Canvas</h4>
+          <p>Component-based frontend with hot-reload. Keeps the interface snappy and development cycle rapid with a full-fat framework.</p>
+        </div>
+        <div class="arch-detail-card" id="arch-d2">
+          <div class="arch-detail-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="3"/><circle cx="5" cy="19" r="3"/><circle cx="19" cy="19" r="3"/><line x1="12" y1="8" x2="5" y2="16"/><line x1="12" y1="8" x2="19" y2="16"/></svg>
+          </div>
+          <h4>React Flow Engine</h4>
+          <p>Provides canvas interactions such as nodes, edges, pan and zoom. Implements graph validation and execution logic before adopting a message-workflow engine.</p>
+        </div>
+        <div class="arch-detail-card" id="arch-d3">
+          <div class="arch-detail-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          </div>
+          <h4>Node.js + Express</h4>
+          <p>Lightweight REST API and webhook layer using the server language ecosystem as the toolset, suitable for routing, validation and integration without framework overhead.</p>
+        </div>
+        <div class="arch-detail-card" id="arch-d4">
+          <div class="arch-detail-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          </div>
+          <h4>PostgreSQL</h4>
+          <p>Durable relational storage for workflow definitions, run and node results, with constraints and transactions to protect state consistency compared with in-memory storage.</p>
+        </div>
+        <div class="arch-detail-card" id="arch-d5">
+          <div class="arch-detail-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m8 17 4 4 4-4"/></svg>
+          </div>
+          <h4>Redis + BullMQ</h4>
+          <p>A Redis-backed queue for asynchronous jobs, concurrency, retries and worker coordination; more resilient and scalable than running all tasks within a single API process.</p>
+        </div>
+        <div class="arch-detail-card" id="arch-d6">
+          <div class="arch-detail-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
+          </div>
+          <h4>Server-Sent Events</h4>
+          <p>Simple one-way stream to the browser for live run updates. Better fit for NODEVERSE than WebSockets where the canvas only needs to receive live status events.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── TECH STACK ────────────────────────────────────────────── -->
+  <section class="section tech-section" id="tech-stack">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Technology Selection</span>
+        <h2 class="section-title">Carefully chosen<br/><span class="gradient-text">technology stack</span></h2>
+        <p class="section-desc">Every library selected for a precise reason — performance, reliability, and developer experience.</p>
+      </div>
+      <div class="tech-table-wrap">
+        <table class="tech-table" id="tech-table">
+          <thead>
+            <tr>
+              <th>Library / API</th>
+              <th>Why It's Selected</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr id="tech-row-react">
+              <td><span class="tech-name">React + Vite</span></td>
+              <td>Component-based frontend and hot-build tooling. Keeps the interface modular and the development cycle rapid with a familiar full-stack framework.</td>
+            </tr>
+            <tr id="tech-row-flow">
+              <td><span class="tech-name">React Flow</span></td>
+              <td>Provides canvas interactions such as nodes, edges, pan and zoom. The team will implement its own graph validation and execution logic rather than adopting a message workflow engine.</td>
+            </tr>
+            <tr id="tech-row-express">
+              <td><span class="tech-name">Node.js + Express</span></td>
+              <td>A lightweight REST API and webhook layer using the same language ecosystem as the frontend, suitable for routing, validation and integration without framework overhead.</td>
+            </tr>
+            <tr id="tech-row-pg">
+              <td><span class="tech-name">PostgreSQL</span></td>
+              <td>Durable relational storage for workflow definitions, run and node results, with constraints and transactions to protect state consistency compared with in-memory options.</td>
+            </tr>
+            <tr id="tech-row-redis">
+              <td><span class="tech-name">Redis + BullMQ</span></td>
+              <td>A Redis-backed queue for asynchronous jobs, concurrency, retries and worker coordination; more resilient and scalable than running all tasks within a single API process.</td>
+            </tr>
+            <tr id="tech-row-cron">
+              <td><span class="tech-name">Cron Scheduling</span></td>
+              <td>A cron-parser library will schedule and maintain trigger runs in due time. The exact package will be selected after checking maintenance, issue activity and license compatibility.</td>
+            </tr>
+            <tr id="tech-row-sse">
+              <td><span class="tech-name">Server-Sent Events (SSE)</span></td>
+              <td>A simple one-way server stream to the browser for live run updates. It is a better fit than WebSockets where the canvas only needs to receive live status events.</td>
+            </tr>
+            <tr id="tech-row-docker">
+              <td><span class="tech-name">Docker Compose</span></td>
+              <td>Coordinates the API, database, Redis and worker services in a reproducible local demo environment, avoiding manual or error-prone startup setup.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── NODE TYPES ────────────────────────────────────────────── -->
+  <section class="section nodes-section" id="node-types">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Node Library</span>
+        <h2 class="section-title">Every node type<br/>you <span class="gradient-text">could need</span></h2>
+      </div>
+      <div class="nodes-grid">
+        <div class="node-card" id="node-trigger-card">
+          <div class="node-preview trigger">
+            <span class="node-dot"></span>
+            <span class="node-label-prev">Trigger</span>
+          </div>
+          <h4>Trigger</h4>
+          <p>Manual, webhook HTTP request, or cron schedule entry point</p>
+        </div>
+        <div class="node-card" id="node-http-card">
+          <div class="node-preview http">
+            <span class="node-dot"></span>
+            <span class="node-label-prev">HTTP</span>
+          </div>
+          <h4>HTTP Request</h4>
+          <p>Make outbound API calls and pass responses downstream</p>
+        </div>
+        <div class="node-card" id="node-transform-card">
+          <div class="node-preview transform">
+            <span class="node-dot"></span>
+            <span class="node-label-prev">Transform</span>
+          </div>
+          <h4>Data Transform</h4>
+          <p>Map, filter and reshape data between node outputs and inputs</p>
+        </div>
+        <div class="node-card" id="node-condition-card">
+          <div class="node-preview condition">
+            <span class="node-dot"></span>
+            <span class="node-label-prev">Condition</span>
+          </div>
+          <h4>Condition</h4>
+          <p>Branch execution paths based on configurable logic expressions</p>
+        </div>
+        <div class="node-card" id="node-delay-card">
+          <div class="node-preview delay">
+            <span class="node-dot"></span>
+            <span class="node-label-prev">Delay</span>
+          </div>
+          <h4>Delay</h4>
+          <p>Pause execution for a fixed duration before continuing</p>
+        </div>
+        <div class="node-card" id="node-dlq-card">
+          <div class="node-preview dlq">
+            <span class="node-dot"></span>
+            <span class="node-label-prev">Dead Letter</span>
+          </div>
+          <h4>Dead Letter Queue</h4>
+          <p>Catch exhausted failures for manual review and replay</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── CTA ───────────────────────────────────────────────────── -->
+  <section class="section cta-section" id="get-started">
+    <div class="container">
+      <div class="cta-card">
+        <div class="cta-glow"></div>
+        <div class="cta-content">
+          <span class="section-tag">Get Started</span>
+          <h2>Ready to build your first<br/><span class="gradient-text">automated workflow?</span></h2>
+          <p>NODEVERSE runs locally with Docker Compose. Spin up the full stack in minutes and start connecting nodes on the canvas.</p>
+          <div class="cta-code-block">
+            <span class="code-prompt">$</span>
+            <span class="code-cmd" id="cta-code">docker compose up --build</span>
+            <button class="copy-btn" id="copy-docker-cmd" title="Copy command">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <div class="cta-actions">
+            <a href="#features" class="btn-primary" id="cta-features-btn">Explore Features</a>
+            <a href="#architecture" class="btn-ghost" id="cta-arch-btn">View Architecture</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ────────────────────────────────────────────────── -->
+  <footer class="footer" id="footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <span class="logo-text">NODE<span class="logo-accent">VERSE</span></span>
+          <p>Visual workflow automation platform for dependency-based task orchestration using Directed Acyclic Graphs.</p>
+        </div>
+        <div class="footer-links">
+          <div class="footer-col">
+            <h5>Platform</h5>
+            <a href="#features">Features</a>
+            <a href="#how-it-works">How it Works</a>
+            <a href="#node-types">Node Types</a>
+          </div>
+          <div class="footer-col">
+            <h5>Technical</h5>
+            <a href="#architecture">Architecture</a>
+            <a href="#tech-stack">Tech Stack</a>
+            <a href="#get-started">Get Started</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 NODEVERSE · The Dormammu Loop</span>
+        <span class="footer-built">Built with React Flow · PostgreSQL · BullMQ · SSE</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

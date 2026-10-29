@@ -993,6 +993,79 @@ input:focus, textarea:focus, select:focus {
   fill: #fff !important;
 }
 
+/* React Flow Connection Edge Hover & Delete Selection */
+.react-flow__edge {
+  cursor: pointer;
+}
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke: #c084fc !important;
+  stroke-width: 3.5px !important;
+  filter: drop-shadow(0 0 6px rgba(192, 132, 252, 0.6));
+}
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: #f43f5e !important;
+  stroke-width: 4px !important;
+  filter: drop-shadow(0 0 10px #f43f5e);
+}
+
+/* ── Condition Node Branch Handles (Green TRUE / Red FALSE) ──── */
+.condition-branch-bar {
+  display: flex !important;
+  justify-content: space-around !important;
+  align-items: center !important;
+  margin-top: 10px !important;
+  padding-top: 8px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+  gap: 16px !important;
+}
+.condition-branch {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  padding: 5px 14px 14px 14px !important;
+  border-radius: 6px !important;
+  font-size: 0.72rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.06em !important;
+}
+.condition-branch.branch-true {
+  color: #10b981 !important;
+  background: rgba(16, 185, 129, 0.14) !important;
+  border: 1px solid rgba(16, 185, 129, 0.4) !important;
+}
+.condition-branch.branch-false {
+  color: #f43f5e !important;
+  background: rgba(244, 63, 94, 0.14) !important;
+  border: 1px solid rgba(244, 63, 94, 0.4) !important;
+}
+.react-flow__handle.branch-handle-true {
+  width: 14px !important;
+  height: 14px !important;
+  background: #10b981 !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: 0 0 10px #10b981, 0 0 20px rgba(16, 185, 129, 0.8) !important;
+  border-radius: 50% !important;
+  bottom: -8px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  cursor: crosshair !important;
+  z-index: 10 !important;
+}
+.react-flow__handle.branch-handle-false {
+  width: 14px !important;
+  height: 14px !important;
+  background: #f43f5e !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: 0 0 10px #f43f5e, 0 0 20px rgba(244, 63, 94, 0.8) !important;
+  border-radius: 50% !important;
+  bottom: -8px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  cursor: crosshair !important;
+  z-index: 10 !important;
+}
+
 /* ── Bottom Execution Log Dock (Collapsible) ─────────────────── */
 .studio-bottom-dock {
   position: absolute;
@@ -3405,8 +3478,5 @@ html {
 .footer-bottom-btn:hover {
   color: #c084fc;
 }
-
-
-
 
 

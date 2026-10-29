@@ -196,8 +196,8 @@ export default function AppConsole() {
     try {
       const [s, w, r] = await Promise.all([
         api.getStats().catch(() => null),
-        api.getWorkflows().catch(() => []),
-        api.getRuns().catch(() => []),
+        api.listWorkflows().catch(() => []),
+        api.listRuns(null, 50).catch(() => []),
       ]);
       setStats(s);
       setWorkflows(Array.isArray(w) ? w : []);
@@ -220,7 +220,7 @@ export default function AppConsole() {
     toast.info(`Executing "${workflow.name}"...`);
 
     try {
-      const run = await api.runWorkflow(workflow.id, {
+      const run = await api.triggerWorkflow(workflow.id, {
         triggeredBy: 'console',
         timestamp: new Date().toISOString(),
       });
@@ -546,42 +546,54 @@ export default function AppConsole() {
                     </tr>
                   </thead>
                   <tbody>
-                    {recentRuns.map(run => (
-                      <tr key={run.id} onClick={() => navigate(`/runs/${run.id}`)} className="clickable-row">
-                        <td>
-                          <span className={`status-pill ${run.status}`}>
-                            {run.status === 'completed' && '✔ Completed'}
-                            {run.status === 'failed' && '✖ Failed'}
-                            {run.status === 'running' && '● Running'}
-                          </span>
-                        </td>
-                        <td className="font-semibold text-white">
-                          {run.workflowName || run.workflowId}
-                        </td>
-                        <td>
-                          <span className="chip chip-mono">{run.triggerType || 'manual'}</span>
-                        </td>
-                        <td className="text-muted text-xs">
-                          {new Date(run.startedAt).toLocaleTimeString()}
-                        </td>
-                        <td className="text-muted text-xs font-mono">
-                          {run.completedAt
-                            ? `${new Date(run.completedAt) - new Date(run.startedAt)}ms`
-                            : 'in progress'}
-                        </td>
-                        <td>
-                          <button
-                            className="btn btn-ghost btn-xs"
-                            onClick={e => {
-                              e.stopPropagation();
-                              navigate(`/runs/${run.id}`);
-                            }}
-                          >
-                            Inspect <ExternalLink size={12} />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                    {recentRuns.map(run => {
+                      const workflowId = run.workflow_id || run.workflowId;
+                      const workflowName = run.workflowName ||
+                        workflows.find(workflow => workflow.id === workflowId)?.name ||
+                        workflowId ||
+                        'Unknown workflow';
+                      const startedAt = run.started_at || run.startedAt;
+                      const completedAt = run.completed_at || run.completedAt;
+                      const startedDate = startedAt ? new Date(startedAt) : null;
+                      const completedDate = completedAt ? new Date(completedAt) : null;
+                      const hasValidStart = startedDate && !Number.isNaN(startedDate.getTime());
+                      const hasValidCompletion = completedDate && !Number.isNaN(completedDate.getTime());
+
+                      return (
+                        <tr key={run.id} onClick={() => navigate(`/runs/${run.id}`)} className="clickable-row">
+                          <td>
+                            <span className={`status-pill ${run.status}`}>
+                              {run.status === 'completed' && '✔ Completed'}
+                              {run.status === 'failed' && '✖ Failed'}
+                              {run.status === 'running' && '● Running'}
+                            </span>
+                          </td>
+                          <td className="font-semibold text-white">{workflowName}</td>
+                          <td>
+                            <span className="chip chip-mono">{run.trigger_type || run.triggerType || 'manual'}</span>
+                          </td>
+                          <td className="text-muted text-xs">
+                            {hasValidStart ? startedDate.toLocaleTimeString() : '—'}
+                          </td>
+                          <td className="text-muted text-xs font-mono">
+                            {hasValidCompletion && hasValidStart
+                              ? `${completedDate - startedDate}ms`
+                              : completedAt ? '—' : 'in progress'}
+                          </td>
+                          <td>
+                            <button
+                              className="btn btn-ghost btn-xs"
+                              onClick={e => {
+                                e.stopPropagation();
+                                navigate(`/runs/${run.id}`);
+                              }}
+                            >
+                              Inspect <ExternalLink size={12} />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

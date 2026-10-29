@@ -540,6 +540,31 @@ function NodeConfigDrawer({ node, onUpdate, onDelete, onClose, lastNodeRun }) {
                     <span>Inbound webhook URL: <code>/webhooks/:workflowId</code></span>
                   </div>
                 )}
+
+                {/* ── Configurable Inbound / Test Payload ────────── */}
+                <div className="form-group" style={{ marginTop: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                    <label style={{ margin: 0 }}>Trigger Inbound Payload (JSON)</label>
+                    <button
+                      type="button"
+                      className="btn-ghost btn-xs"
+                      onClick={() => setField('payload', '{\n  "websiteUrl": "https://news.ycombinator.com",\n  "project": "Website Monitor",\n  "checkTime": "' + new Date().toLocaleTimeString() + '"\n}')}
+                      style={{ fontSize: '0.72rem', color: '#c084fc', padding: '2px 8px', border: '1px solid rgba(168, 85, 247, 0.3)' }}
+                    >
+                      + Fill Sample Website URL
+                    </button>
+                  </div>
+                  <textarea
+                    rows={6}
+                    value={typeof data.payload === 'object' ? JSON.stringify(data.payload, null, 2) : (data.payload || '')}
+                    onChange={e => setField('payload', e.target.value)}
+                    placeholder='{\n  "websiteUrl": "https://example.com",\n  "project": "Demo"\n}'
+                    className="mono-input"
+                  />
+                  <span className="field-hint">
+                    Write your test or default payload here. Downstream nodes can dynamically read <code>{'{{input.websiteUrl}}'}</code>.
+                  </span>
+                </div>
               </>
             )}
 
@@ -624,6 +649,28 @@ function NodeConfigDrawer({ node, onUpdate, onDelete, onClose, lastNodeRun }) {
                     placeholder="https://api.example.com/items/{{input.id}}"
                   />
                   <span className="field-hint">Supports dynamic variables: <code>{'{{input.orderId}}'}</code></span>
+                </div>
+
+                <div className="form-group">
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <label style={{ margin: 0 }}>Request Headers (JSON / Cookies)</label>
+                    <button
+                      type="button"
+                      className="btn-ghost btn-xs"
+                      onClick={() => setField('headers', '{\n  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",\n  "Cookie": "YOUR_FLIPKART_COOKIE_HERE"\n}')}
+                      style={{ fontSize: '0.72rem', color: '#c084fc', padding: '2px 8px', border: '1px solid rgba(168, 85, 247, 0.3)' }}
+                    >
+                      + Fill Sample Cookie Header
+                    </button>
+                  </div>
+                  <textarea
+                    rows={4}
+                    value={typeof data.headers === 'object' ? JSON.stringify(data.headers, null, 2) : (data.headers || '')}
+                    onChange={e => setField('headers', e.target.value)}
+                    placeholder='{\n  "Cookie": "YOUR_COOKIE",\n  "Authorization": "Bearer TOKEN"\n}'
+                    className="mono-input"
+                  />
+                  <span className="field-hint">Paste your session cookies or auth tokens here (sent with both GET & POST).</span>
                 </div>
 
                 {['POST', 'PUT', 'PATCH'].includes((data.method || 'GET').toUpperCase()) && (
@@ -856,12 +903,19 @@ function WorkflowEditorInner() {
         const ns = (Array.isArray(wf.nodes) ? wf.nodes : JSON.parse(wf.nodes || '[]'))
           .map(n => ({ ...n, data: { ...n.data, status: undefined, durationMs: undefined } }));
         const es = (Array.isArray(wf.edges) ? wf.edges : JSON.parse(wf.edges || '[]'))
-          .map(e => ({
-            ...e,
-            animated: true,
-            style: { stroke: '#a855f7', strokeWidth: 2 },
-            markerEnd: { type: MarkerType.ArrowClosed, color: '#a855f7' },
-          }));
+          .map(e => {
+            const isTrue = e.sourceHandle === 'true';
+            const isFalse = e.sourceHandle === 'false';
+            const color = isTrue ? '#10b981' : isFalse ? '#f43f5e' : (e.style?.stroke || '#a855f7');
+            return {
+              ...e,
+              animated: true,
+              label: e.label || (isTrue ? 'True' : isFalse ? 'False' : undefined),
+              labelStyle: { fill: color, fontWeight: 700, fontSize: 11 },
+              style: { stroke: color, strokeWidth: 2.5 },
+              markerEnd: { type: MarkerType.ArrowClosed, color },
+            };
+          });
         setNodes(ns);
         setEdges(es);
         setTimeout(() => fitView({ padding: 0.25, duration: 400 }), 150);
@@ -871,17 +925,29 @@ function WorkflowEditorInner() {
 
   /* Edge connection */
   const onConnect = useCallback(params => {
+    const isTrue = params.sourceHandle === 'true';
+    const isFalse = params.sourceHandle === 'false';
+    const color = isTrue ? '#10b981' : isFalse ? '#f43f5e' : '#a855f7';
+
     setEdges(eds =>
       addEdge(
         {
           ...params,
           animated: true,
-          style: { stroke: params.sourceHandle === 'true' ? '#10b981' : params.sourceHandle === 'false' ? '#f43f5e' : '#a855f7', strokeWidth: 2 },
-          markerEnd: { type: MarkerType.ArrowClosed, color: '#a855f7' },
+          label: isTrue ? 'True' : isFalse ? 'False' : undefined,
+          labelStyle: { fill: color, fontWeight: 700, fontSize: 11 },
+          style: { stroke: color, strokeWidth: 2.5 },
+          markerEnd: { type: MarkerType.ArrowClosed, color },
         },
         eds
       )
     );
+  }, [setEdges]);
+
+  /* 1-Click / Double-Click to Delete Connection Line */
+  const onEdgeDoubleClick = useCallback((_, edge) => {
+    setEdges(eds => eds.filter(e => e.id !== edge.id));
+    showToast('Connection line deleted', 'info');
   }, [setEdges]);
 
   /* Drag & Drop Node Creation */
@@ -1066,7 +1132,37 @@ function WorkflowEditorInner() {
     })));
 
     try {
-      const run = await api.triggerWorkflow(workflow.id, { initiatedVia: 'Studio UI', timestamp: Date.now() });
+      // Auto-save current canvas before execution so newly connected edges are immediately executed
+      const cleanNodes = nodes.map(n => ({
+        ...n,
+        data: { ...n.data, status: undefined, durationMs: undefined },
+      }));
+      const triggerNode = nodes.find(n => n.type === 'trigger');
+      const trigger_type = triggerNode?.data?.triggerType || 'manual';
+      const cron_expression = triggerNode?.data?.cronExpression || null;
+
+      await api.updateWorkflow(workflow.id, {
+        name: workflowName,
+        nodes: cleanNodes,
+        edges,
+        trigger_type,
+        cron_expression,
+      });
+
+      // Collect payload from trigger node if specified
+      let triggerPayload = { initiatedVia: 'Studio UI', timestamp: Date.now() };
+      if (triggerNode?.data?.payload) {
+        try {
+          const parsed = typeof triggerNode.data.payload === 'string'
+            ? JSON.parse(triggerNode.data.payload)
+            : triggerNode.data.payload;
+          triggerPayload = { ...triggerPayload, ...parsed };
+        } catch {
+          triggerPayload.raw = triggerNode.data.payload;
+        }
+      }
+
+      const run = await api.triggerWorkflow(workflow.id, triggerPayload);
       setActiveRunId(run.id);
       showToast(`Execution started: ${run.id.slice(0, 8)}`, 'info');
 
@@ -1097,6 +1193,29 @@ function WorkflowEditorInner() {
             };
           }
           return n;
+        }));
+
+        // Dynamic Edge Color Transitions (Green for active completed, dashed grey for skipped)
+        setEdges(es => es.map(edge => {
+          if (edge.target === nr.node_id) {
+            if (nr.status === 'completed') {
+              return {
+                ...edge,
+                animated: false,
+                style: { ...edge.style, stroke: '#10b981', strokeWidth: 3, filter: 'drop-shadow(0 0 6px rgba(16, 185, 129, 0.6))' },
+                markerEnd: { type: MarkerType.ArrowClosed, color: '#10b981' },
+              };
+            }
+            if (nr.status === 'skipped') {
+              return {
+                ...edge,
+                animated: false,
+                style: { ...edge.style, stroke: '#475569', strokeWidth: 1.5, opacity: 0.35, strokeDasharray: '4 4' },
+                markerEnd: { type: MarkerType.ArrowClosed, color: '#475569' },
+              };
+            }
+          }
+          return edge;
         }));
 
         setRunSnapshot(prev => {
@@ -1188,23 +1307,98 @@ function WorkflowEditorInner() {
 
   /* Import Workflow JSON */
   const handleImportJson = (e) => {
-    const file = e.target.files?.[0];
+    const input = e.target;
+    const file = input.files?.[0];
+    input.value = '';
     if (!file) return;
     const reader = new FileReader();
     reader.onload = ev => {
       try {
         const parsed = JSON.parse(ev.target.result);
-        if (parsed.nodes && parsed.edges) {
-          setWorkflowName(parsed.name || 'Imported Workflow');
-          setNodes(parsed.nodes);
-          setEdges(parsed.edges);
-          setTimeout(() => fitView({ padding: 0.25, duration: 400 }), 150);
-          showToast('Workflow imported successfully', 'success');
+        if (!Array.isArray(parsed.nodes) || !Array.isArray(parsed.edges) || parsed.nodes.length === 0) {
+          throw new Error('The file must contain at least one node and an edges array');
         }
-      } catch {
-        showToast('Invalid JSON file format', 'error');
+
+        const importedIds = new Set();
+        for (const node of parsed.nodes) {
+          if (
+            !node ||
+            typeof node.id !== 'string' ||
+            !node.id ||
+            typeof node.type !== 'string' ||
+            !node.type ||
+            !Number.isFinite(node.position?.x) ||
+            !Number.isFinite(node.position?.y) ||
+            importedIds.has(node.id)
+          ) {
+            throw new Error('The file contains an invalid or duplicate node');
+          }
+          importedIds.add(node.id);
+        }
+
+        for (const edge of parsed.edges) {
+          if (
+            !edge ||
+            typeof edge.source !== 'string' ||
+            typeof edge.target !== 'string' ||
+            !importedIds.has(edge.source) ||
+            !importedIds.has(edge.target)
+          ) {
+            throw new Error('The file contains an edge connected to a missing node');
+          }
+        }
+
+        const existingIds = new Set(nodes.map(node => node.id));
+        const existingEdgeIds = new Set(edges.map(edge => edge.id).filter(Boolean));
+        const idMap = new Map();
+        const importedNodes = parsed.nodes.map(node => {
+          let id = node.id;
+          while (existingIds.has(id)) id = newNodeId(node.type);
+          existingIds.add(id);
+          idMap.set(node.id, id);
+          return {
+            ...node,
+            id,
+            data: { ...node.data, status: undefined, durationMs: undefined },
+          };
+        });
+
+        const importedEdges = parsed.edges.map(edge => {
+          let id = edge.id;
+          if (id) {
+            while (existingEdgeIds.has(id)) id = `${edge.id}_${newNodeId('edge')}`;
+            existingEdgeIds.add(id);
+          }
+          return {
+            ...edge,
+            ...(id ? { id } : {}),
+            source: idMap.get(edge.source),
+            target: idMap.get(edge.target),
+          };
+        });
+
+        const minX = Math.min(...importedNodes.map(node => node.position.x));
+        const maxExistingX = nodes.reduce(
+          (max, node) => Math.max(max, node.position?.x ?? 0),
+          0
+        );
+        const offsetX = nodes.length ? maxExistingX + 340 - minX : 0;
+        const appendedNodes = importedNodes.map(node => ({
+          ...node,
+          position: { ...node.position, x: node.position.x + offsetX },
+        }));
+
+        setNodes(current => [...current, ...appendedNodes]);
+        setEdges(current => [...current, ...importedEdges]);
+        if (nodes.length === 0 && parsed.name) setWorkflowName(parsed.name);
+        setSelectedNode(null);
+        setTimeout(() => fitView({ padding: 0.25, duration: 400 }), 150);
+        showToast(`Imported ${appendedNodes.length} node(s) into the studio`, 'success');
+      } catch (error) {
+        showToast(error.message || 'Invalid JSON file format', 'error');
       }
     };
+    reader.onerror = () => showToast('Could not read the selected JSON file', 'error');
     reader.readAsText(file);
   };
 
@@ -1399,6 +1593,7 @@ function WorkflowEditorInner() {
             onDragOver={onDragOver}
             onNodeClick={onNodeClick}
             onPaneClick={onPaneClick}
+            onEdgeDoubleClick={onEdgeDoubleClick}
             nodeTypes={nodeTypes}
             fitView
             deleteKeyCode={['Backspace', 'Delete']}
