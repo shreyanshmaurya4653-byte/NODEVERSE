@@ -48,7 +48,7 @@ export function hasCycle(nodes, edges) {
   return analysis.hasCycle;
 }
 
-/* ── String Interpolation Helper ─────────────────────────────── Interpolation means the process of replacing placeholders in a string with actual values. */
+/* ── String Interpolation Helper ─────────────────────────────── */
 function interpolate(str, data) {
   if (typeof str !== 'string') return str;
   return str.replace(/\{\{(.*?)\}\}/g, (_, key) => {
@@ -64,7 +64,7 @@ function timestampLog(msg) {
   return `[${time}] ${msg}`;
 }
 
-/* ── Node Executors ──────────────────────────────────────────── It is the process of executing a node in the DAG. */
+/* ── Node Executors ──────────────────────────────────────────── */
 async function executeTrigger(config, input, logs) {
   logs.push(timestampLog(`Trigger evaluated: type=${config.triggerType || 'manual'}`));
 
@@ -88,7 +88,7 @@ async function executeTrigger(config, input, logs) {
     receivedAt: new Date().toISOString(),
   };
 }
-//It is the process of executing a node in the DAG.
+
 async function executeHttp(config, input, logs) {
   const rawUrl = config.url || 'https://httpbin.org/get';
   const url    = interpolate(rawUrl, input);
