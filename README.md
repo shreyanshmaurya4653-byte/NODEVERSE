@@ -224,25 +224,25 @@ The frontend registers the following node types, with the execution map defined 
 
 ```mermaid
 flowchart TB
-    U[User / External Service] --> FE[React + React Router + React Flow]
-    FE <-->|REST JSON| API[Express API :4000]
-    U -->|POST webhook| WH[Webhook Route]
-    CRON[node-cron Scheduler] -->|create run| RUN[Run Creation]
+    U["User / External Service"] --> FE["React + React Router + React Flow"]
+    FE <-->|REST JSON| API["Express API :4000"]
+    U -->|POST webhook| WH["Webhook Route"]
+    CRON["node-cron Scheduler"] -->|create run| RUN["Run Creation"]
     WH --> RUN
     API --> RUN
-    RUN --> DB[(PostgreSQL)]
-    RUN --> ENQ[enqueueRun()]
-    ENQ -->|REDIS_URL configured| Q[(Redis + BullMQ Queue)]
-    Q --> W[ BullMQ Worker · concurrency 5 ]
-    ENQ -->|fallback when Redis absent| INLINE[Inline setImmediate execution]
-    W --> EXEC[executeRun()]
+    RUN --> DB[("PostgreSQL")]
+    RUN --> ENQ["enqueueRun()"]
+    ENQ -->|REDIS_URL configured| Q[("Redis + BullMQ Queue")]
+    Q --> W["BullMQ Worker - concurrency 5"]
+    ENQ -->|fallback when Redis absent| INLINE["Inline setImmediate() execution"]
+    W --> EXEC["executeRun()"]
     INLINE --> EXEC
-    EXEC --> GRAPH[analyzeGraph(): cycle check + topological order]
-    GRAPH --> NODES[Sequential node execution within this run]
+    EXEC --> GRAPH["analyzeGraph(): cycle check + topological order"]
+    GRAPH --> NODES["Sequential node execution within this run"]
     NODES -->|success/output| DB
-    NODES -->|retry budget exhausted| DLQ[Dead-Letter record]
+    NODES -->|retry budget exhausted| DLQ["Dead-Letter record"]
     DLQ --> DB
-    EXEC --> SSE[SSE event manager]
+    EXEC --> SSE["SSE event manager"]
     DB --> SSE
     SSE -->|snapshot / node_update / run_update| FE
 ```
@@ -328,36 +328,36 @@ The diagram below describes the execution path implemented in the current source
 
 ```mermaid
 flowchart TD
-    A[User / External Service] --> B[Express API or Webhook Route]
-    B --> C[Create Workflow Run Record]
-    C --> D[enqueueRun workflowId, runId, input]
-    D --> E{Redis + BullMQ enabled?}
-    E -->|Yes| F[Redis Queue]
-    F --> G[BullMQ Worker Handler]
-    E -->|No| H[Inline setImmediate fallback]
-    G --> I[executeRun()]
+    A["User / External Service"] --> B["Express API or Webhook Route"]
+    B --> C["Create Workflow Run Record"]
+    C --> D["enqueueRun(workflowId, runId, input)"]
+    D --> E{"Redis + BullMQ enabled?"}
+    E -->|Yes| F["Redis Queue"]
+    F --> G["BullMQ Worker Handler"]
+    E -->|No| H["Inline setImmediate() fallback"]
+    G --> I["executeRun()"]
     H --> I
-    I --> J[Load workflow and input]
-    J --> K[Analyze nodes and edges]
-    K --> L{Cycle detected?}
-    L -->|Yes| M[Mark run failed and emit run_update]
-    L -->|No| N[Create NodeRun records]
-    N --> O[Visit nodes in topological order]
-    O --> P{Upstream failure or inactive branch?}
-    P -->|Yes| Q[Mark node SKIPPED]
-    P -->|No| R[Execute node handler]
-    R --> S{Handler succeeds?}
-    S -->|Yes| T[Persist output, attempt, logs and status]
-    S -->|No, retries remain| U[Backoff + jitter, then retry]
+    I --> J["Load workflow and input"]
+    J --> K["Analyze nodes and edges"]
+    K --> L{"Cycle detected?"}
+    L -->|Yes| M["Mark run failed and emit run_update"]
+    L -->|No| N["Create NodeRun records"]
+    N --> O["Visit nodes in topological order"]
+    O --> P{"Upstream failure or inactive branch?"}
+    P -->|Yes| Q["Mark node SKIPPED"]
+    P -->|No| R["Execute node handler"]
+    R --> S{"Handler succeeds?"}
+    S -->|Yes| T["Persist output, attempt, logs and status"]
+    S -->|No, retries remain| U["Backoff + jitter, then retry"]
     U --> R
-    S -->|Retries exhausted| V[Mark node FAILED and create DLQ record]
-    Q --> W[Continue to next node]
+    S -->|Retries exhausted| V["Mark node FAILED and create DLQ record"]
+    Q --> W["Continue to next node"]
     T --> W
     V --> W
-    W --> X[Finalize run: completed or failed]
-    M --> Y[Persisted records + SSE events]
+    W --> X["Finalize run: completed or failed"]
+    M --> Y["Persisted records + SSE events"]
     X --> Y
-    Y --> Z[Frontend updates Studio and execution views]
+    Y --> Z["Frontend updates Studio and execution views"]
 ```
 
 ### Execution semantics
